@@ -1,0 +1,169 @@
+---
+title: "Google Data Analytics Capstone Case Study"
+author: "Alex Cheung"
+date: '2022-03-19'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Case Study 1 - Cyclistic Bike-Share Analysis
+
+In this analysis, I am a junior data analyst with a bike-share company named Cyclistic. My task was to figure out **"How do annual members and causal riders use Cyclistic bikes differently?"**, provide my analysis and recommendations. 
+
+To break down this task into lists, I followed the six phases of data analysis:
+  1. Ask
+  2. Prepare
+  3. Process
+  4. Analyze
+  5. Share
+  6. Act
+  
+
+### 1. Ask
+
+In this phase, I had to identify my business task and the stakeholders. The business task is, of course, to find out **how annual members and casual riders use Cyclistic bikes differently**. This questions involves an analysis of user patterns on different dimensions. In this case study, I decided to focus on the followings question to establish my study:
+ **a.) What are the biking patterns for annual members and casual users throughout the course of a week?**
+ **b.) What is the average ride duration for the two categories?**
+ **c.) How are the types of bikes being used by the two categories?**
+ 
+As for the stakeholders of this case study, they would be my supervisor Lily Moreno, my analytics team and the executive team of the company.
+
+
+### 2. Prepare
+
+In this phase, the data source would be internal so the credibility and reliability is trustworthy. The data could be downloaded [here](<https://divvy-tripdata.s3.amazonaws.com/index.html>). I downloaded 12 months of data (March 2021 to February 2022) for analysis and the files are all in .csv format.
+
+
+### 3. Process
+
+In this phase, I examined the data files and concluded that I had to use any SQL IDE or R to work on the analysis given the number of rows in total have exceeded the limits of a spreadsheet file can contain. 
+
+For data processing, I did the followings:
+
+```{r Importing data and profiling}
+#Step 1: Import raw data (12 months).
+#t202103 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202103-divvy-tripdata.csv")
+#t202104 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202104-divvy-tripdata.csv")
+#t202105 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202105-divvy-tripdata.csv")
+#t202106 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202106-divvy-tripdata.csv")
+#t202107 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202107-divvy-tripdata.csv")
+#t202108 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202108-divvy-tripdata.csv")
+#t202109 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202109-divvy-tripdata.csv")
+#t202110 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202110-divvy-tripdata.csv")
+#t202111 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202111-divvy-tripdata.csv")
+#t202112 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202112-divvy-tripdata.csv")
+#t202201 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202201-divvy-tripdata.csv")
+#t202202 <- read_csv("~/R Directory/Google Case Study/Case1/CSV/202202-divvy-tripdata.csv")
+
+
+#Combine all data into one table.
+#annual <- rbind(t202103, t202104, t202105, t202106, t202107, t202108, t202109, t202110, t202111, t202112, t202201, t202202)
+
+#Step 2: Data profiling - Inspect the combined table.
+#str(annual)
+#colnames(annual)
+#head(annual)
+#dim(annual)
+#summary(annual)
+```
+
+
+Upon checking on the imported data, I noticed that I need to remove some of the columns as they were not needed. I also added some columns to the table for analysis.
+```{r data cleaning}
+#Step 3: Data Cleaning
+#3.1 to drop unnecessary data columns and create a new table.
+#all_trips <- annual %>% 
+  #select(-c(start_lat, end_lat, start_lng, end_lng))
+
+
+#3.2 Add more columns to the data set, basically breaking down the date into smaller pieces
+#all_trips$date <- as.Date(all_trips$started_at)
+#all_trips$month <- format(as.Date(all_trips$date), "%m")
+#all_trips$day <- format(as.Date(all_trips$date), "%d")
+#all_trips$year <- format(as.Date(all_trips$date), "%Y")
+#all_trips$day_of_week <- format(as.Date(all_trips$date), "%A")
+
+#3.3 Add a column calculate the trip duration
+#all_trips$ride_length <- difftime(all_trips$ended_at, all_trips$started_at)
+
+#3.4 Convert ride_length from factor to numeric for calculations
+#is.factor(all_trips$ride_length) 
+#all_trips$ride_length <- as.numeric(as.character(all_trips$ride_length)) 
+#is.numeric(all_trips$ride_length) 
+
+
+#3.5 Remove any data where ride_length is negative and create a new df
+#all_trips_v2 <- all_trips[(!all_trips$ride_length <= 0), ]
+
+```
+
+
+## 4. Analyze
+
+At this stage I conducted serveral desciptive analysis:
+```{r descriptive analysis}
+#Step 4: Descriptive analysis
+#4.1 Summary 
+#summary(all_trips_v2$ride_length) 
+
+
+#4.2 Aggregate: Ride_length 
+#aggregate(all_trips_v2$ride_length ~ all_trips_v2$member_casual, FUN = mean)
+
+
+#4.2.1 Ride_length during Day of Week (Average Duration)
+#all_trips_v2$day_of_week <- ordered(all_trips_v2$day_of_week, levels = c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+
+#aggregate(all_trips_v2$ride_length ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean)
+#ride_duration_sum <- aggregate(all_trips_v2$ride_length ~ all_trips_v2$member_casual + all_trips_v2$day_of_week, FUN = mean) #assign df to the table above
+
+
+#4.3 Aggregate: Usage Pattern during Day of Week (Number of rides per day of week)
+#all_trips_v2 %>% 
+  #mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  #group_by(member_casual, weekday) %>% 
+  #summarise(number_of_rides = n(), averager_duration = mean(ride_length)) %>% 
+  #arrange(member_casual, weekday)
+
+
+#4.4 Aggregate: Types of Bike 
+#all_trips_v2 %>% 
+  #group_by(member_casual, rideable_type) %>% ##group columns by first: user type, second: bike type
+  #summarise(Num_count = n()) %>% ##create a new column to count number of rows, the previous group function will separate the counts based on groups
+  #arrange(member_casual, rideable_type) ##sort first by user type, then bike type
+
+
+```
+
+
+## 5. Share
+
+After analyzing the data, I used ggplot() function to visualize my findings:
+
+  a.) Usage Pattern - Casual vs. Member
+      ![](https://github.com/kowo0403hk/Google-Data-Analtyics/blob/main/Case1-Rplot-Number%20of%20Usage.png?raw=true)
+  
+  b.) Average Ride Duration
+      ![](https://github.com/kowo0403hk/Google-Data-Analtyics/blob/main/Case1-Rplot-Average%20Duration.png?raw=true)
+
+  c.) Types of Bike Usage
+      ![](https://github.com/kowo0403hk/Google-Data-Analtyics/blob/main/Case1-Rplot-Types%20of%20Bike%20Usage.png?raw=true)
+      
+
+## 6. Act
+
+Based on the findings above, I concluded that:
+
+  1. Casual users tend to use bikes during weekend, and annual members tend to use bikes more during weekdays. This finding suggests that casual user are utilizing the bikes for leisure while annual members are utilizing the bikes for work. 
+  2. Casual users have a much longer average ride duration compared to annual members. This finding would be a good evidence to suggest that the short ride duration for members is due to work-related commuting, while the longer ride duration for casual users is related to leisure use (such as bike tracks, picnics, etc.)
+  3. Both causal users and annual members tend to use classic bikes and electric bikes only. Docked bikes are seldom used due to its size and annual member do not use it at all for work commuting. 
+  
+
+Recommendation:
+
+  1. Provide weekend package to casual users to stimulate more bike usage. 
+  2. Reward program for long ride duration that can increase the attraction of weekend package.
+  3. Provide periodic promotional rates for docked bikes to strategically increase the usage of such type among casual users. 
